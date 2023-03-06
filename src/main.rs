@@ -1,8 +1,10 @@
+#![feature(async_closure)]
 #![allow(clippy::module_name_repetitions)]
 
 mod args;
 mod download;
 mod search;
+mod types;
 
 use args::{
     Args,

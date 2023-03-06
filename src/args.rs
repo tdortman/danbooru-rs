@@ -35,7 +35,7 @@ pub struct DownloadCommand {
     #[clap(
         short = 'o',
         long = "output",
-        default_value = "output",
+        default_value = "./output",
         help = "Output directory"
     )]
     pub save_location: PathBuf,
