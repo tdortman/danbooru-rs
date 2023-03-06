@@ -6,7 +6,7 @@ pub struct Post {
     score: i32,
     rating: String,
     file_ext: String,
-    file_url: String,
-    large_file_url: String,
+    file_url: Option<String>,
+    large_file_url: Option<String>,
 }
 
