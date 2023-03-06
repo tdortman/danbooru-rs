@@ -23,16 +23,13 @@ pub fn handle_download(args: &DownloadCommand) {
         },
         |x| x,
     );
-    println!("Total pages: {total_pages}");
 
     let posts = fetch_posts(&args.tags, total_pages, &client);
-
-    println!("Total posts: {}", posts.len());
 
     let progress_bar = ProgressBar::new(posts.len() as u64)
         .with_style(
             ProgressStyle::with_template(
-                "{msg} {percent}% |{bar:50.cyan/blue}| ({pos}/{len}) [{elapsed}/{eta}]",
+                "{msg} {percent}% |{bar:50.cyan/blue}| ({pos}/{len}) [{elapsed_precise}]",
             )
             .unwrap_or_else(|_| ProgressStyle::default_bar())
             .progress_chars("#= "),
