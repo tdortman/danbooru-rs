@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser, Debug)]
 #[clap(
     author = "Tilted Toast",
-    version = "0.1.0",
+    version = "0.2.0",
     about = "A command line interface for Danbooru"
 )]
 pub struct Args {
