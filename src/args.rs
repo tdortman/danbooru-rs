@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser, Debug)]
 #[clap(
     author = "Tilted Toast",
-    version = "0.4.0",
+    version = "1.0.0",
     about = "A command line interface for Danbooru"
 )]
 pub struct Args {
@@ -35,7 +35,7 @@ pub struct DownloadCommand {
     #[clap(
         short = 'o',
         long = "output",
-        default_value = "./output",
+        default_value = "output",
         help = "Output directory"
     )]
     pub save_location: PathBuf,

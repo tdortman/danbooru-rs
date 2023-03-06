@@ -28,6 +28,27 @@ pub fn handle_download(args: &DownloadCommand) {
     let posts = fetch_posts(&args.tags, total_pages, &client);
 
     println!("Total posts: {}", posts.len());
+
+    let progress_bar = ProgressBar::new(posts.len() as u64)
+        .with_style(
+            ProgressStyle::with_template(
+                "{msg} {percent}% |{bar:50.cyan/blue}| ({pos}/{len}) [{elapsed}/{eta}]",
+            )
+            .unwrap_or_else(|_| ProgressStyle::default_bar())
+            .progress_chars("#= "),
+        )
+        .with_message("Downloading posts");
+
+    posts
+        .into_par_iter()
+        .progress_with(progress_bar.clone())
+        .for_each(|post| {
+            match post.download(&client, args) {
+                Err(_) | Ok(_) => (),
+            };
+        });
+
+    progress_bar.finish();
 }
 
 fn fetch_posts(tags: &[String], pages_amount: u64, client: &Client) -> Vec<Post> {
