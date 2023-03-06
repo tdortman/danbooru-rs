@@ -15,6 +15,7 @@ use search::handle_search;
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
+
     match args.command {
         Download(x) => handle_download(x).await,
         Search(x) => handle_search(x).await,

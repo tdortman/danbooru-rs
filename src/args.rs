@@ -15,7 +15,7 @@ pub struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    #[clap(about = "Download images via tag", alias = "dl")]
+    #[clap(about = "Download images via tags", alias = "dl")]
     Download(DownloadCommand),
     #[clap(about = "Search for tags", alias = "s")]
     Search(SearchCommand),
@@ -24,9 +24,18 @@ pub enum Commands {
 #[derive(clap::Args, Debug)]
 #[allow(clippy::struct_excessive_bools)]
 pub struct DownloadCommand {
-    #[clap(short = 't', long = "tag")]
-    pub tag: String,
-    #[clap(short = 'o', long = "output", default_value = "output")]
+    #[clap(
+        short = 't',
+        long = "tag",
+        help = "Tag to search for (can be used multiple times)"
+    )]
+    pub tags: Vec<String>,
+    #[clap(
+        short = 'o',
+        long = "output",
+        default_value = "output",
+        help = "Output directory"
+    )]
     pub save_location: PathBuf,
     #[clap(
         short = 'g',
