@@ -27,7 +27,9 @@ pub struct DownloadCommand {
     #[clap(
         short = 't',
         long = "tag",
-        help = "Tag to search for (can be used multiple times)"
+        help = "Tag to search for (can be used multiple times)",
+        required = true,
+        value_name = "TAG"
     )]
     pub tags: Vec<String>,
     #[clap(
