@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -25,7 +27,7 @@ pub struct DownloadCommand {
     #[clap(short = 't', long = "tag")]
     pub tag: String,
     #[clap(short = 'o', long = "output", default_value = "output")]
-    pub save_location: String,
+    pub save_location: PathBuf,
     #[clap(
         short = 'g',
         long = "general",
@@ -54,6 +56,6 @@ pub struct DownloadCommand {
 
 #[derive(clap::Args, Debug)]
 pub struct SearchCommand {
-    #[clap(short = 't', long = "term")]
+    #[clap(short = 't', long = "term", help = "The term to search for")]
     pub search_term: String,
 }
