@@ -29,7 +29,7 @@ pub fn handle_download(args: &DownloadCommand) {
     let progress_bar = ProgressBar::new(posts.len() as u64)
         .with_style(
             ProgressStyle::with_template(
-                "{msg} {percent}% |{bar:50.cyan/blue}| ({pos}/{len}) [{elapsed_precise}]",
+                "{msg} {percent}%  |{wide_bar:0.cyan/blue}| ({pos}/{len}) [{elapsed_precise} elapsed]",
             )
             .unwrap_or_else(|_| ProgressStyle::default_bar())
             .progress_chars("#= "),
@@ -57,7 +57,7 @@ fn fetch_posts(tags: &[String], pages_amount: u64, client: &Client) -> Vec<Post>
 
     let progress_bar = ProgressBar::new(pages_amount)
         .with_style(
-            ProgressStyle::with_template("{msg} {percent}% |{bar:50.cyan/blue}| ({pos}/{len})")
+            ProgressStyle::with_template("{msg} {percent}% |{wide_bar:0.cyan/blue}| ({pos}/{len} pages)")
                 .unwrap_or_else(|_| ProgressStyle::default_bar())
                 .progress_chars("#= "),
         )
