@@ -32,7 +32,7 @@ pub fn handle_download(args: &DownloadCommand) {
     let progress_bar = ProgressBar::new(posts.len() as u64)
         .with_style(
             ProgressStyle::with_template(
-                "{msg} {percent}%  |{wide_bar:0.cyan/blue}| ({pos}/{len}) [{elapsed_precise} elapsed]",
+                "{msg} {percent}% |{wide_bar:0.cyan/blue}| ({pos}/{len}) [{elapsed_precise}]",
             )
             .unwrap_or_else(|_| ProgressStyle::default_bar())
             .progress_chars("#= "),
