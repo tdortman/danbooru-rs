@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser, Debug)]
 #[clap(
     author = "Tilted Toast",
-    version = "1.0.3",
+    version = "1.0.4",
     about = "A command line interface for Danbooru"
 )]
 pub struct Args {
@@ -15,7 +15,7 @@ pub struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    #[clap(about = "Download images via tags", alias = "dl")]
+    #[clap(about = "Download posts via tags", alias = "dl")]
     Download(DownloadCommand),
     #[clap(about = "Search for tags", alias = "s")]
     Search(SearchCommand),

@@ -21,7 +21,7 @@ pub fn handle_download(args: &DownloadCommand) {
     let client = Client::new();
     let total_pages = get_total_pages(&args.tags, &client).map_or_else(
         |_| {
-            eprintln!("No results found for tags: {:?}", args.tags);
+            eprintln!("No results found that contain all the tags {:?}", args.tags);
             process::exit(1);
         },
         |x| x,
