@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser, Debug)]
 #[clap(
     author = "Tilted Toast",
-    version = "1.0.1",
+    version = "1.0.2",
     about = "A command line interface for Danbooru"
 )]
 pub struct Args {
@@ -22,7 +22,6 @@ pub enum Commands {
 }
 
 #[derive(clap::Args, Debug)]
-#[allow(clippy::struct_excessive_bools)]
 pub struct DownloadCommand {
     #[clap(
         short = 't',
