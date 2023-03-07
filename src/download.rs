@@ -15,6 +15,8 @@ use scraper::Html;
 use scraper::Selector;
 use urlencoding::encode;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 pub fn handle_download(args: &DownloadCommand) {
     let client = Client::new();
     let total_pages = get_total_pages(&args.tags, &client).map_or_else(
@@ -98,10 +100,7 @@ fn get_posts_from_page(encoded_tags: &str, page: u64, client: &Client) -> Result
         .get(&query)
         .headers({
             let mut headers = HeaderMap::new();
-            headers.insert(
-                "User-Agent",
-                format!("danbooru-rs/{}", env!("CARGO_PKG_VERSION")).parse()?,
-            );
+            headers.insert("User-Agent", format!("danbooru-rs/{VERSION}").parse()?);
             headers.insert("Accept", "application/json".parse()?);
             headers
         })
@@ -135,10 +134,7 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
         .get(&query)
         .headers({
             let mut headers = HeaderMap::new();
-            headers.insert(
-                "User-Agent",
-                format!("danbooru-rs/{}", env!("CARGO_PKG_VERSION")).parse()?,
-            );
+            headers.insert("User-Agent", format!("danbooru-rs/{VERSION}").parse()?);
             headers.insert("Accept", "text/html".parse()?);
             headers
         })
