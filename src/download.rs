@@ -58,16 +58,18 @@ fn fetch_posts(tags: &[String], pages_amount: u64, client: &Client) -> Vec<Post>
 
     let progress_bar = ProgressBar::new(pages_amount)
         .with_style(
-            ProgressStyle::with_template("{msg} {percent}% |{wide_bar:0.cyan/blue}| ({pos}/{len} pages)")
-                .unwrap_or_else(|_| ProgressStyle::default_bar())
-                .progress_chars("#= "),
+            ProgressStyle::with_template(
+                "{msg} {percent}% |{wide_bar:0.cyan/blue}| ({pos}/{len} pages)",
+            )
+            .unwrap_or_else(|_| ProgressStyle::default_bar())
+            .progress_chars("#= "),
         )
         .with_message("Fetching posts");
 
     #[allow(clippy::option_if_let_else)]
     let posts: Vec<Post> = (1..=pages_amount)
         .into_par_iter()
-        .progress_with(progress_bar.clone())
+        .progress_with(progress_bar)
         .flat_map(
             |page| match get_posts_from_page(&encoded_tags, page, client) {
                 Ok(x) => x,
@@ -75,8 +77,6 @@ fn fetch_posts(tags: &[String], pages_amount: u64, client: &Client) -> Vec<Post>
             },
         )
         .collect();
-
-    progress_bar.finish();
 
     posts
 }
