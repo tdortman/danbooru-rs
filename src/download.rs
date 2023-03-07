@@ -10,6 +10,7 @@ use indicatif::ProgressBar;
 use indicatif::ProgressStyle;
 use rayon::prelude::*;
 use reqwest::blocking::Client;
+use reqwest::header::HeaderMap;
 use scraper::Html;
 use scraper::Selector;
 use urlencoding::encode;
@@ -96,7 +97,7 @@ fn get_posts_from_page(encoded_tags: &str, page: u64, client: &Client) -> Result
     let response = client
         .get(&query)
         .headers({
-            let mut headers = reqwest::header::HeaderMap::new();
+            let mut headers = HeaderMap::new();
             headers.insert(
                 "User-Agent",
                 format!("danbooru-rs/{}", env!("CARGO_PKG_VERSION")).parse()?,
@@ -133,7 +134,7 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
     let response = client
         .get(&query)
         .headers({
-            let mut headers = reqwest::header::HeaderMap::new();
+            let mut headers = HeaderMap::new();
             headers.insert(
                 "User-Agent",
                 format!("danbooru-rs/{}", env!("CARGO_PKG_VERSION")).parse()?,
