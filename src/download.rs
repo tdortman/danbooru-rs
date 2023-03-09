@@ -2,7 +2,7 @@ use std::env;
 use std::process;
 
 use crate::args::DownloadCommand;
-use crate::types::Post;
+use crate::post::Post;
 use anyhow::{anyhow, Result};
 
 use indicatif::ParallelProgressIterator;
@@ -15,10 +15,17 @@ use scraper::Html;
 use scraper::Selector;
 use urlencoding::encode;
 
+const NAME: &str = env!("CARGO_PKG_NAME");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub fn handle_download(args: &DownloadCommand) {
-    let client = Client::new();
+    let client = Client::builder()
+        .user_agent(format!("{NAME}/{VERSION}"))
+        .build()
+        .unwrap_or_else(|_| {
+            eprintln!("Failed to build request client");
+            process::exit(1);
+        });
     let total_pages = get_total_pages(&args.tags, &client).map_or_else(
         |_| {
             eprintln!("No results found that contain all the tags {:?}", args.tags);
@@ -98,12 +105,7 @@ fn get_posts_from_page(encoded_tags: &str, page: u64, client: &Client) -> Result
 
     let response = client
         .get(&query)
-        .headers({
-            let mut headers = HeaderMap::new();
-            headers.insert("User-Agent", format!("danbooru-rs/{VERSION}").parse()?);
-            headers.insert("Accept", "application/json".parse()?);
-            headers
-        })
+        .header("Accept", "application/json")
         .send()?;
 
     let json_body = String::from_utf8(response.bytes()?.to_vec())?;

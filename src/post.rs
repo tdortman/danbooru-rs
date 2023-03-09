@@ -9,8 +9,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::args::DownloadCommand;
 
-const VERSION: &str = env!("CARGO_PKG_VERSION");
-
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Post {
     id: i32,
@@ -75,10 +73,7 @@ impl Post {
             return Ok(());
         }
 
-        let mut response = client
-            .get(url)
-            .header("User-Agent", format!("danbooru-rs/{VERSION}"))
-            .send()?;
+        let mut response = client.get(url).send()?;
 
         let mut file = File::create(&file_path)?;
 

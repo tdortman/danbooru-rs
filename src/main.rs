@@ -1,7 +1,7 @@
 mod args;
 mod download;
 mod search;
-mod types;
+mod post;
 
 use args::{
     Args,
