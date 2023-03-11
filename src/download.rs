@@ -45,11 +45,7 @@ pub fn handle_download(args: &DownloadCommand) {
     posts
         .into_par_iter()
         .progress_with(progress_bar.clone())
-        .for_each(|post| {
-            match post.download(&client, args) {
-                Err(_) | Ok(_) => (),
-            };
-        });
+        .for_each(|post| post.download(&client, args).unwrap_or_default());
 
     progress_bar.finish();
 }
@@ -98,9 +94,7 @@ fn get_posts_from_page(encoded_tags: &str, page: u64, client: &Client) -> Result
         .header("Accept", "application/json")
         .send()?;
 
-    let json_body = String::from_utf8(response.bytes()?.to_vec())?;
-
-    let posts: Vec<Post> = serde_json::from_str(&json_body)?;
+    let posts: Vec<Post> = serde_json::from_reader(response)?;
 
     Ok(posts)
 }
