@@ -26,13 +26,10 @@ pub fn handle_download(args: &DownloadCommand) {
             eprintln!("Failed to build request client");
             process::exit(1);
         });
-    let total_pages = get_total_pages(&args.tags, &client).map_or_else(
-        |_| {
-            eprintln!("No results found that contain all the tags {:?}", args.tags);
-            process::exit(1);
-        },
-        |x| x,
-    );
+    let total_pages = get_total_pages(&args.tags, &client).unwrap_or_else(|_| {
+        eprintln!("No results found that contain all the tags {:?}", args.tags);
+        process::exit(1);
+    });
 
     let posts = fetch_posts(&args.tags, total_pages, &client);
 
