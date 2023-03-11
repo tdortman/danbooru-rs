@@ -20,14 +20,14 @@ pub struct Post {
 }
 
 impl Post {
-    pub fn download(self, client: &Client, args: &DownloadCommand) -> Result<()> {
-        let is_webm = &self
+    pub fn download(&self, client: &Client, args: &DownloadCommand) -> Result<()> {
+        let is_webm = self
             .large_file_url
             .clone()
-            .ok_or_else(|| anyhow!("No url detected"))?
+            .ok_or(anyhow!("No url detected"))?
             .contains(".webm");
 
-        let file_extension = if &self.file_ext == "zip" && is_webm.to_owned() {
+        let file_extension = if &self.file_ext == "zip" && is_webm {
             "webm"
         } else {
             &self.file_ext
@@ -36,11 +36,9 @@ impl Post {
         let url = if is_webm.to_owned() {
             self.large_file_url
                 .clone()
-                .ok_or_else(|| anyhow!("No url detected"))?
+                .ok_or(anyhow!("No url detected"))?
         } else {
-            self.file_url
-                .clone()
-                .ok_or_else(|| anyhow!("No url detected"))?
+            self.file_url.clone().ok_or(anyhow!("No url detected"))?
         };
 
         let subfolder = match &self.rating[..] {

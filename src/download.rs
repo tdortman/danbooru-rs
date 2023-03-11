@@ -10,7 +10,6 @@ use indicatif::ProgressBar;
 use indicatif::ProgressStyle;
 use rayon::prelude::*;
 use reqwest::blocking::Client;
-use reqwest::header::HeaderMap;
 use scraper::Html;
 use scraper::Selector;
 use urlencoding::encode;
@@ -38,7 +37,7 @@ pub fn handle_download(args: &DownloadCommand) {
             ProgressStyle::with_template(
                 "{msg} {percent}% |{wide_bar:0.cyan/blue}| ({pos}/{len}) [{elapsed_precise}]",
             )
-            .unwrap_or_else(|_| ProgressStyle::default_bar())
+            .unwrap_or(ProgressStyle::default_bar())
             .progress_chars("#= "),
         )
         .with_message("Downloading posts");
@@ -67,21 +66,15 @@ fn fetch_posts(tags: &[String], pages_amount: u64, client: &Client) -> Vec<Post>
             ProgressStyle::with_template(
                 "{msg} {percent}% |{wide_bar:0.cyan/blue}| ({pos}/{len} pages)",
             )
-            .unwrap_or_else(|_| ProgressStyle::default_bar())
+            .unwrap_or(ProgressStyle::default_bar())
             .progress_chars("#= "),
         )
         .with_message("Fetching posts");
 
-    #[allow(clippy::option_if_let_else)]
     let posts: Vec<Post> = (1..=pages_amount)
         .into_par_iter()
         .progress_with(progress_bar)
-        .flat_map(
-            |page| match get_posts_from_page(&encoded_tags, page, client) {
-                Ok(x) => x,
-                Err(_) => vec![],
-            },
-        )
+        .flat_map(|page| get_posts_from_page(&encoded_tags, page, client).unwrap_or_default())
         .collect();
 
     posts
@@ -92,11 +85,11 @@ fn get_posts_from_page(encoded_tags: &str, page: u64, client: &Client) -> Result
         format!("https://danbooru.donmai.us/posts.json?page={page}&tags={encoded_tags}")
             + "&limit=200&only=rating,file_url,id,score,file_ext,large_file_url";
 
-    if env::var("LOGIN_NAME").is_ok() && env::var("API_KEY").is_ok() {
+    if env::var("DANBOORU_LOGIN").is_ok() && env::var("DANBOORU_API_KEY").is_ok() {
         query += &format!(
             "&login={}&api_key={}",
-            env::var("LOGIN_NAME").unwrap_or_default(),
-            env::var("API_KEY").unwrap_or_default()
+            env::var("DANBOORU_LOGIN")?,
+            env::var("DANBOORU_API_KEY")?
         );
     }
 
@@ -121,23 +114,15 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
 
     let mut query = format!("https://danbooru.donmai.us/posts?tags={encoded_tags}&limit=200");
 
-    if env::var("LOGIN_NAME").is_ok() && env::var("API_KEY").is_ok() {
+    if env::var("DANBOORU_LOGIN").is_ok() && env::var("DANBOORU_API_KEY").is_ok() {
         query += &format!(
             "&login={}&api_key={}",
-            env::var("LOGIN_NAME")?,
-            env::var("API_KEY")?
+            env::var("DANBOORU_LOGIN")?,
+            env::var("DANBOORU_API_KEY")?
         );
     }
 
-    let response = client
-        .get(&query)
-        .headers({
-            let mut headers = HeaderMap::new();
-            headers.insert("User-Agent", format!("danbooru-rs/{VERSION}").parse()?);
-            headers.insert("Accept", "text/html".parse()?);
-            headers
-        })
-        .send()?;
+    let response = client.get(&query).header("Accept", "text/html").send()?;
 
     let html_body = String::from_utf8(response.bytes()?.to_vec())?;
     let document = Html::parse_document(&html_body);
