@@ -11,12 +11,12 @@ use crate::args::DownloadCommand;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Post {
-    id: i32,
-    score: i32,
-    rating: String,
-    file_ext: String,
-    file_url: Option<String>,
-    large_file_url: Option<String>,
+    pub id: i32,
+    pub score: i32,
+    pub rating: String,
+    pub file_ext: String,
+    pub file_url: Option<String>,
+    pub large_file_url: Option<String>,
 }
 
 impl Post {
@@ -60,14 +60,6 @@ impl Post {
         let file_path = sub_folder_path.join(filename);
 
         if file_path.exists() {
-            return Ok(());
-        }
-
-        if &self.rating == "s" && args.exclude_sensitive
-            || &self.rating == "q" && args.exclude_questionable
-            || &self.rating == "e" && args.exclude_explicit
-            || &self.rating == "g" && args.exclude_general
-        {
             return Ok(());
         }
 

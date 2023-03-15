@@ -30,7 +30,7 @@ pub fn handle_download(args: &DownloadCommand) {
         process::exit(1);
     });
 
-    let posts = fetch_posts(&args.tags, total_pages, &client);
+    let posts = fetch_posts(&args.tags, total_pages, &client, args);
 
     let progress_bar = ProgressBar::new(posts.len() as u64)
         .with_style(
@@ -50,7 +50,12 @@ pub fn handle_download(args: &DownloadCommand) {
     progress_bar.finish();
 }
 
-fn fetch_posts(tags: &[String], pages_amount: u64, client: &Client) -> Vec<Post> {
+fn fetch_posts(
+    tags: &[String],
+    pages_amount: u64,
+    client: &Client,
+    args: &DownloadCommand,
+) -> Vec<Post> {
     let encoded_tags = tags
         .iter()
         .map(|x| encode(x).into_owned())
@@ -70,13 +75,18 @@ fn fetch_posts(tags: &[String], pages_amount: u64, client: &Client) -> Vec<Post>
     let posts: Vec<Post> = (1..=pages_amount)
         .into_par_iter()
         .progress_with(progress_bar)
-        .flat_map(|page| get_posts_from_page(&encoded_tags, page, client).unwrap_or_default())
+        .flat_map(|page| get_posts_from_page(&encoded_tags, page, client, args).unwrap_or_default())
         .collect();
 
     posts
 }
 
-fn get_posts_from_page(encoded_tags: &str, page: u64, client: &Client) -> Result<Vec<Post>> {
+fn get_posts_from_page(
+    encoded_tags: &str,
+    page: u64,
+    client: &Client,
+    args: &DownloadCommand,
+) -> Result<Vec<Post>> {
     let mut query =
         format!("https://danbooru.donmai.us/posts.json?page={page}&tags={encoded_tags}")
             + "&limit=200&only=rating,file_url,id,score,file_ext,large_file_url";
@@ -95,6 +105,16 @@ fn get_posts_from_page(encoded_tags: &str, page: u64, client: &Client) -> Result
         .send()?;
 
     let posts: Vec<Post> = serde_json::from_reader(response)?;
+
+    let posts = posts
+        .into_iter()
+        .filter(|post| {
+            !(post.rating == "s" && args.exclude_sensitive
+                || post.rating == "q" && args.exclude_questionable
+                || post.rating == "e" && args.exclude_explicit
+                || post.rating == "g" && args.exclude_general)
+        })
+        .collect();
 
     Ok(posts)
 }
