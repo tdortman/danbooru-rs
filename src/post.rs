@@ -33,7 +33,7 @@ impl Post {
             &self.file_ext
         };
 
-        let url = if is_webm.to_owned() {
+        let url = if is_webm {
             self.large_file_url
                 .clone()
                 .ok_or(anyhow!("No url detected"))?
