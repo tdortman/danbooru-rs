@@ -78,6 +78,11 @@ fn fetch_posts(
         .flat_map(|page| get_posts_from_page(&encoded_tags, page, client, args).unwrap_or_default())
         .collect();
 
+    if posts.is_empty() {
+        eprintln!("No posts found with the given filter flags");
+        process::exit(1);
+    }
+
     posts
 }
 
