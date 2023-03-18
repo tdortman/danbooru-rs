@@ -1,4 +1,5 @@
 use std::env;
+use std::io::BufReader;
 use std::process;
 
 use crate::args::DownloadCommand;
@@ -109,7 +110,7 @@ fn get_posts_from_page(
         .header("Accept", "application/json")
         .send()?;
 
-    let posts: Vec<Post> = serde_json::from_reader(response)?;
+    let posts: Vec<Post> = serde_json::from_reader(BufReader::new(response))?;
 
     let posts = posts
         .into_iter()

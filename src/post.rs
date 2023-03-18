@@ -1,6 +1,6 @@
 use std::{
     fs::{create_dir_all, File},
-    io::copy,
+    io::{copy, BufWriter, BufReader},
 };
 
 use anyhow::{anyhow, Result};
@@ -63,9 +63,9 @@ impl Post {
             return Ok(());
         }
 
-        let mut response = client.get(url).send()?;
+        let mut response = BufReader::new(client.get(url).send()?);
 
-        let mut file = File::create(&file_path)?;
+        let mut file = BufWriter::new(File::create(&file_path)?);
 
         copy(&mut response, &mut file)?;
 
