@@ -13,7 +13,7 @@ use crate::args::DownloadCommand;
 pub struct Post {
     pub id: i32,
     pub score: i32,
-    pub rating: String,
+    pub rating: char,
     pub file_ext: String,
     pub file_url: Option<String>,
     pub large_file_url: Option<String>,
@@ -39,11 +39,11 @@ impl Post {
             self.file_url.ok_or(anyhow!("No url detected"))?
         };
 
-        let subfolder = match &self.rating[..] {
-            "s" => "sensitive",
-            "q" => "questionable",
-            "e" => "explicit",
-            "g" => "general",
+        let subfolder = match self.rating {
+            's' => "sensitive",
+            'q' => "questionable",
+            'e' => "explicit",
+            'g' => "general",
             _ => "unknown",
         };
 
