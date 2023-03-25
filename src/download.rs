@@ -1,5 +1,7 @@
 use std::env;
+use std::fs::create_dir_all;
 use std::io::BufReader;
+use std::path::PathBuf;
 use std::process;
 
 use crate::args::DownloadCommand;
@@ -18,7 +20,7 @@ use urlencoding::encode;
 const NAME: &str = env!("CARGO_PKG_NAME");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub fn handle_download(args: &DownloadCommand) {
+pub fn handle_download(args: &mut DownloadCommand) {
     let client = Client::builder()
         .user_agent(format!("{NAME}/{VERSION}"))
         .build()
@@ -30,6 +32,20 @@ pub fn handle_download(args: &DownloadCommand) {
         eprintln!("No results found that contain all the tags {:?}", args.tags);
         process::exit(1);
     });
+
+    match create_dir_all(&args.save_location) {
+        Ok(_) => {}
+        Err(_) => {
+            println!(
+                "Failed to create folder {:?}",
+                env::current_dir()
+                    .unwrap_or(PathBuf::from("."))
+                    .join(&args.save_location)
+            );
+            println!("Creating folder named \"output\" in current directory instead");
+            args.save_location = PathBuf::from("output");
+        }
+    }
 
     let posts = fetch_posts(&args.tags, total_pages, &client, args);
 

@@ -17,7 +17,7 @@ fn main() {
     dotenv().ok();
 
     match args.command {
-        Download(x) => handle_download(&x),
+        Download(mut x) => handle_download(&mut x),
         Search(x) => handle_search(&x),
     }
 }
