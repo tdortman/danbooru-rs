@@ -80,7 +80,7 @@ fn fetch_posts(
         .collect();
 
     if posts.is_empty() {
-        eprintln!("No posts found with the given filter flags");
+        eprintln!("No posts found!");
         process::exit(1);
     }
 
