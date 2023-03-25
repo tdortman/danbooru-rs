@@ -144,8 +144,7 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
 
     let response = client.get(&query).header("Accept", "text/html").send()?;
 
-    let html_body = String::from_utf8(response.bytes()?.to_vec())?;
-    let document = Html::parse_document(&html_body);
+    let document = Html::parse_document(&response.text()?);
 
     let no_posts_selector = match Selector::parse("#posts > div > p") {
         Ok(x) => x,
