@@ -1,6 +1,6 @@
 use std::{
     fs::{create_dir_all, File},
-    io::{copy, BufWriter, BufReader},
+    io::{copy, BufReader, BufWriter},
 };
 
 use anyhow::{anyhow, Result};
@@ -20,10 +20,10 @@ pub struct Post {
 }
 
 impl Post {
-    pub fn download(&self, client: &Client, args: &DownloadCommand) -> Result<()> {
+    pub fn download(self, client: &Client, args: &DownloadCommand) -> Result<()> {
         let is_webm = self
             .large_file_url
-            .clone()
+            .as_ref()
             .ok_or(anyhow!("No url detected"))?
             .contains(".webm");
 
@@ -34,11 +34,9 @@ impl Post {
         };
 
         let url = if is_webm {
-            self.large_file_url
-                .clone()
-                .ok_or(anyhow!("No url detected"))?
+            self.large_file_url.ok_or(anyhow!("No url detected"))?
         } else {
-            self.file_url.clone().ok_or(anyhow!("No url detected"))?
+            self.file_url.ok_or(anyhow!("No url detected"))?
         };
 
         let subfolder = match &self.rating[..] {
