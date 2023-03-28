@@ -6,7 +6,7 @@ use std::process;
 
 use crate::args::DownloadCommand;
 use crate::post::Post;
-use anyhow::{anyhow, Result};
+use anyhow::{bail, Result};
 
 use indicatif::ParallelProgressIterator;
 use indicatif::ProgressBar;
@@ -164,16 +164,16 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
 
     let no_posts_selector = match Selector::parse("#posts > div > p") {
         Ok(x) => x,
-        Err(_) => return Err(anyhow!("Failed to parse selector")),
+        Err(_) => bail!("Failed to parse selector"),
     };
 
     if document.select(&no_posts_selector).count() != 0 {
-        return Err(anyhow!("No results found for tags: {:?}", tags));
+        bail!("No results found for tags: {:?}", tags);
     }
 
     let pagination_selector = match Selector::parse(".paginator-page.desktop-only") {
         Ok(x) => x,
-        Err(_) => return Err(anyhow!("Failed to parse selector")),
+        Err(_) => bail!("Failed to parse selector"),
     };
 
     let amount: u64 = match document.select(&pagination_selector).last() {
