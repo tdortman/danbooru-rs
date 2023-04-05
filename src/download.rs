@@ -33,18 +33,15 @@ pub fn handle_download(args: &mut DownloadCommand) {
         process::exit(1);
     });
 
-    match create_dir_all(&args.save_location) {
-        Ok(_) => {}
-        Err(_) => {
-            println!(
-                "Failed to create folder {:?}",
-                env::current_dir()
-                    .unwrap_or(PathBuf::from("."))
-                    .join(&args.save_location)
-            );
-            println!("Creating folder named \"output\" in current directory instead");
-            args.save_location = PathBuf::from("output");
-        }
+    if create_dir_all(&args.save_location).is_err() {
+        println!(
+            "Failed to create folder {:?}",
+            env::current_dir()
+                .unwrap_or(PathBuf::from("."))
+                .join(&args.save_location)
+        );
+        println!("Creating folder named \"output\" in current directory instead");
+        args.save_location = PathBuf::from("output");
     }
 
     let posts = fetch_posts(&args.tags, total_pages, &client, args);
@@ -162,18 +159,16 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
 
     let document = Html::parse_document(&response.text()?);
 
-    let no_posts_selector = match Selector::parse("#posts > div > p") {
-        Ok(x) => x,
-        Err(_) => bail!("Failed to parse selector"),
+    let Ok(no_posts_selector) = Selector::parse("#posts > div > p") else {
+        bail!("Failed to parse selector");
     };
 
     if document.select(&no_posts_selector).count() != 0 {
         bail!("No results found for tags: {:?}", tags);
     }
 
-    let pagination_selector = match Selector::parse(".paginator-page.desktop-only") {
-        Ok(x) => x,
-        Err(_) => bail!("Failed to parse selector"),
+    let Ok(pagination_selector) = Selector::parse(".paginator-page.desktop-only") else {
+        bail!("Failed to parse selector");
     };
 
     let amount: u64 = match document.select(&pagination_selector).last() {
