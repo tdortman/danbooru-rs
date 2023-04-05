@@ -110,12 +110,8 @@ fn get_posts_from_page(
         format!("https://danbooru.donmai.us/posts.json?page={page}&tags={encoded_tags}")
             + "&limit=200&only=rating,file_url,id,score,file_ext,large_file_url";
 
-    if env::var("DANBOORU_LOGIN").is_ok() && env::var("DANBOORU_API_KEY").is_ok() {
-        query += &format!(
-            "&login={}&api_key={}",
-            env::var("DANBOORU_LOGIN")?,
-            env::var("DANBOORU_API_KEY")?
-        );
+    if let (Ok(login), Ok(api_key)) = (env::var("DANBOORU_LOGIN"), env::var("DANBOORU_API_KEY")) {
+        query.push_str(&format!("&login={login}&api_key={api_key}"));
     }
 
     let response = client
@@ -147,12 +143,8 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
 
     let mut query = format!("https://danbooru.donmai.us/posts?tags={encoded_tags}&limit=200");
 
-    if env::var("DANBOORU_LOGIN").is_ok() && env::var("DANBOORU_API_KEY").is_ok() {
-        query += &format!(
-            "&login={}&api_key={}",
-            env::var("DANBOORU_LOGIN")?,
-            env::var("DANBOORU_API_KEY")?
-        );
+    if let (Ok(login), Ok(api_key)) = (env::var("DANBOORU_LOGIN"), env::var("DANBOORU_API_KEY")) {
+        query.push_str(&format!("&login={login}&api_key={api_key}"));
     }
 
     let response = client.get(&query).header("Accept", "text/html").send()?;
@@ -171,10 +163,11 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
         bail!("Failed to parse selector");
     };
 
-    let amount: u64 = match document.select(&pagination_selector).last() {
-        Some(x) => x.inner_html().parse()?,
-        None => 1,
-    };
+    let amount: u64 = document
+        .select(&pagination_selector)
+        .last()
+        .and_then(|x| x.inner_html().parse().ok())
+        .unwrap_or(1);
 
     Ok(amount)
 }
