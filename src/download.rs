@@ -64,6 +64,13 @@ pub fn handle_download(args: &mut DownloadCommand) {
     progress_bar.finish();
 }
 
+/// Fetches all posts that contain all the given tags
+///
+/// # Arguments
+/// * `tags` - The tags to search for
+/// * `pages_amount` - The amount of pages to fetch, from [`get_total_pages`]
+/// * `client` - The reqwest client to use
+/// * `args` - The CLI arguments used to run the program
 fn fetch_posts(
     tags: &[String],
     pages_amount: u64,
@@ -100,6 +107,12 @@ fn fetch_posts(
     posts
 }
 
+/// Gets all posts from specified page that contain all the given tags
+/// # Arguments
+/// * `encoded_tags` - The tags to search for (url encoded)
+/// * `page` - The page number to fetch posts from
+/// * `client` - The reqwest client to use
+/// * `args` - The CLI arguments used to run the program
 fn get_posts_from_page(
     encoded_tags: &str,
     page: u64,
@@ -134,6 +147,12 @@ fn get_posts_from_page(
     Ok(posts)
 }
 
+/// Makes a request to the danbooru api to get the total amount of pages
+/// of that contain all the given tags
+///
+/// # Arguments
+/// * `tags` - The tags to search for
+/// * `client` - The reqwest client to use
 fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
     let encoded_tags = tags
         .iter()
