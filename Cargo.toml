@@ -3,7 +3,7 @@ name = "danbooru-rs"
 version = "1.0.16"
 edition = "2021"
 description = "A command-line client to download images from Danbooru"
-authors = ["Tilted Toast <tiltedtoast27@gmail.com>"]
+authors = ["Tilted Toast"]
 repository = "https://github.com/TiltedToast/danbooru-rs"
 license = "MIT"
 
