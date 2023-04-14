@@ -190,3 +190,4 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
 
     Ok(amount)
 }
+
