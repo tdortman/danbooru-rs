@@ -39,12 +39,13 @@ impl Post {
             self.file_url.ok_or(anyhow!("No url detected"))?
         };
 
+        #[rustfmt::skip]
         let subfolder = match self.rating {
             's' => "sensitive",
             'q' => "questionable",
             'e' => "explicit",
             'g' => "general",
-            _ => "unknown",
+            _   => "unknown",
         };
 
         let sub_folder_path = args.save_location.join(subfolder);

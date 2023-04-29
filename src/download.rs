@@ -134,13 +134,15 @@ fn get_posts_from_page(
 
     let posts: Vec<Post> = serde_json::from_reader(BufReader::new(response))?;
 
+    #[rustfmt::skip]
     let posts = posts
         .into_iter()
         .filter(|post| {
-            !(post.rating == 's' && args.exclude_sensitive
-                || post.rating == 'q' && args.exclude_questionable
-                || post.rating == 'e' && args.exclude_explicit
-                || post.rating == 'g' && args.exclude_general)
+            !(
+                post.rating == 's' && args.exclude_sensitive
+             || post.rating == 'q' && args.exclude_questionable
+             || post.rating == 'e' && args.exclude_explicit
+             || post.rating == 'g' && args.exclude_general)
         })
         .collect();
 
@@ -190,4 +192,3 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
 
     Ok(amount)
 }
-
