@@ -1,21 +1,13 @@
-use std::env;
-use std::fs::create_dir_all;
-use std::io::BufReader;
-use std::path::PathBuf;
-use std::process;
+use std::{env, fs::create_dir_all, io::BufReader, path::PathBuf, process};
 
-use crate::args::DownloadCommand;
-use crate::post::Post;
 use anyhow::{bail, Result};
-
-use indicatif::ParallelProgressIterator;
-use indicatif::ProgressBar;
-use indicatif::ProgressStyle;
+use indicatif::{ParallelProgressIterator, ProgressBar, ProgressStyle};
 use rayon::prelude::*;
 use reqwest::blocking::Client;
-use scraper::Html;
-use scraper::Selector;
+use scraper::{Html, Selector};
 use urlencoding::encode;
+
+use crate::{args::DownloadCommand, post::Post};
 
 const NAME: &str = env!("CARGO_PKG_NAME");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
