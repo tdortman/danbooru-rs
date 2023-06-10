@@ -9,12 +9,13 @@ use urlencoding::encode;
 
 use crate::{args::DownloadCommand, post::Post};
 
-const NAME: &str = env!("CARGO_PKG_NAME");
+const PKG_NAME: &str = env!("CARGO_PKG_NAME");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
+const POSTS_PER_PAGE: u64 = 200;
 
 pub fn handle_download(args: &mut DownloadCommand) {
     let client = Client::builder()
-        .user_agent(format!("{NAME}/{VERSION}"))
+        .user_agent(format!("{PKG_NAME}/{VERSION}"))
         .build()
         .unwrap_or_else(|_| {
             eprintln!("Failed to build request client");
@@ -113,7 +114,7 @@ fn get_posts_from_page(
 ) -> Result<Vec<Post>> {
     let mut query =
         format!("https://danbooru.donmai.us/posts.json?page={page}&tags={encoded_tags}")
-            + "&limit=200&only=rating,file_url,id,score,file_ext,large_file_url";
+            + "&limit={POSTS_PER_PAGE}&only=rating,file_url,id,score,file_ext,large_file_url";
 
     if let (Ok(login), Ok(api_key)) = (env::var("DANBOORU_LOGIN"), env::var("DANBOORU_API_KEY")) {
         query.push_str(&format!("&login={login}&api_key={api_key}"));
@@ -134,7 +135,8 @@ fn get_posts_from_page(
                 post.rating == 's' && args.exclude_sensitive
              || post.rating == 'q' && args.exclude_questionable
              || post.rating == 'e' && args.exclude_explicit
-             || post.rating == 'g' && args.exclude_general)
+             || post.rating == 'g' && args.exclude_general
+            )
         })
         .collect();
 
@@ -154,7 +156,8 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
         .collect::<Vec<String>>()
         .join("+");
 
-    let mut query = format!("https://danbooru.donmai.us/posts?tags={encoded_tags}&limit=200");
+    let mut query =
+        format!("https://danbooru.donmai.us/posts?tags={encoded_tags}&limit={POSTS_PER_PAGE}");
 
     if let (Ok(login), Ok(api_key)) = (env::var("DANBOORU_LOGIN"), env::var("DANBOORU_API_KEY")) {
         query.push_str(&format!("&login={login}&api_key={api_key}"));
@@ -165,7 +168,7 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
     let document = Html::parse_document(&response.text()?);
 
     let Ok(no_posts_selector) = Selector::parse("#posts > div > p") else {
-        bail!("Failed to parse selector");
+        bail!("Failed to parse post selector");
     };
 
     if document.select(&no_posts_selector).count() != 0 {
@@ -173,7 +176,7 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
     }
 
     let Ok(pagination_selector) = Selector::parse(".paginator-page.desktop-only") else {
-        bail!("Failed to parse selector");
+        bail!("Failed to parse pagination selector");
     };
 
     let amount: u64 = document
