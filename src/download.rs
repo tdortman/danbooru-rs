@@ -113,8 +113,8 @@ fn get_posts_from_page(
     args: &DownloadCommand,
 ) -> Result<Vec<Post>> {
     let mut query =
-        format!("https://danbooru.donmai.us/posts.json?page={page}&tags={encoded_tags}")
-            + "&limit={POSTS_PER_PAGE}&only=rating,file_url,id,score,file_ext,large_file_url";
+        format!("https://danbooru.donmai.us/posts.json?page={page}&tags={encoded_tags}&limit={POSTS_PER_PAGE}")
+              + "&only=rating,file_url,id,score,file_ext,large_file_url";
 
     if let (Ok(login), Ok(api_key)) = (env::var("DANBOORU_LOGIN"), env::var("DANBOORU_API_KEY")) {
         query.push_str(&format!("&login={login}&api_key={api_key}"));
