@@ -18,7 +18,10 @@ fn main() {
     dotenv().ok();
 
     match args.command {
-        Download(mut x) => handle_download(&mut x),
+        Download(mut x) => match handle_download(&mut x) {
+            Ok(())  => (),
+            Err(e)  => eprintln!("{e}"),
+        },
         Search(x)       => handle_search(&x),
     }
 }

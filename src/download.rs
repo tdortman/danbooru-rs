@@ -1,6 +1,6 @@
 use std::{env, fs::create_dir_all, io::BufReader, path::PathBuf, process};
 
-use anyhow::{bail, Result};
+use anyhow::{anyhow, bail, Result};
 use indicatif::{ParallelProgressIterator, ProgressBar, ProgressStyle};
 use rayon::prelude::*;
 use reqwest::blocking::Client;
@@ -13,18 +13,13 @@ const PKG_NAME: &str = env!("CARGO_PKG_NAME");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const POSTS_PER_PAGE: u64 = 200;
 
-pub fn handle_download(args: &mut DownloadCommand) {
+pub fn handle_download(args: &mut DownloadCommand) -> Result<()> {
     let client = Client::builder()
         .user_agent(format!("{PKG_NAME}/{VERSION}"))
         .build()
-        .unwrap_or_else(|_| {
-            eprintln!("Failed to build request client");
-            process::exit(1);
-        });
-    let total_pages = get_total_pages(&args.tags, &client).unwrap_or_else(|_| {
-        eprintln!("No results found that contain all the tags {:?}", args.tags);
-        process::exit(1);
-    });
+        .map_err(|_| anyhow!("Failed to build request client"))?;
+
+    let total_pages = get_total_pages(&args.tags, &client)?;
 
     if create_dir_all(&args.save_location).is_err() {
         println!(
@@ -55,6 +50,8 @@ pub fn handle_download(args: &mut DownloadCommand) {
         .for_each(|post| post.download(&client, args).unwrap_or_default());
 
     progress_bar.finish();
+
+    Ok(())
 }
 
 /// Fetches all posts that contain all the given tags
@@ -163,16 +160,22 @@ fn get_total_pages(tags: &[String], client: &Client) -> Result<u64> {
         query.push_str(&format!("&login={login}&api_key={api_key}"));
     }
 
-    let response = client.get(&query).header("Accept", "text/html").send()?;
+    let Ok(response) = client.get(&query).header("Accept", "text/html").send() else {
+        bail!("Failed to make request to danbooru");
+    };
 
-    let document = Html::parse_document(&response.text()?);
+    let Ok(text) = response.text() else {
+        bail!("Failed to get response text");
+    };
+
+    let document = Html::parse_document(&text);
 
     let Ok(no_posts_selector) = Selector::parse("#posts > div > p") else {
         bail!("Failed to parse post selector");
     };
 
     if document.select(&no_posts_selector).count() != 0 {
-        bail!("No results found for tags: {:?}", tags);
+        bail!("No results found for tags: {tags:?}");
     }
 
     let Ok(pagination_selector) = Selector::parse(".paginator-page.desktop-only") else {

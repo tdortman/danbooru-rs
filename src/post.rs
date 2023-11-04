@@ -54,7 +54,7 @@ impl Post {
             create_dir_all(&sub_folder_path)?;
         }
 
-        let filename = format!("{}_{}.{file_extension}", &self.score, &self.id);
+        let filename = format!("{}_{}.{}", &self.score, &self.id, file_extension);
 
         let file_path = sub_folder_path.join(filename);
 
