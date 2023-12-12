@@ -40,7 +40,7 @@ pub fn handle_download(args: &mut DownloadCommand) -> Result<()> {
                 "{msg} {percent}% {wide_bar:0.cyan/blue} ({pos}/{len}) [{elapsed_precise}]",
             )
             .unwrap_or(ProgressStyle::default_bar())
-            .progress_chars("██░"),
+            .progress_chars("█▉▊▋▌▍▎▏  "),
         )
         .with_message("Downloading posts");
 
@@ -79,7 +79,7 @@ fn fetch_posts(
                 "{msg} {percent}% {wide_bar:0.cyan/blue} ({pos}/{len} pages)",
             )
             .unwrap_or(ProgressStyle::default_bar())
-            .progress_chars("██░"),
+            .progress_chars("█▉▊▋▌▍▎▏  "),
         )
         .with_message("Fetching posts");
 
