@@ -126,7 +126,7 @@ fn get_posts_from_page(
 
     #[rustfmt::skip]
     let posts = posts
-        .into_iter()
+        .into_par_iter()
         .filter(|post| {
             !(
                 post.rating == 's' && args.exclude_sensitive
